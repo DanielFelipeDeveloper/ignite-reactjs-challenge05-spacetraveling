@@ -26,20 +26,30 @@ interface PostProps {
   post: Post;
 }
 
-// export default function Post() {
-//   // TODO
-// }
+export default function Post({ post }: PostProps) {
+  console.log(post);
+  return (
+    <>
+      <h1>Post</h1>
+    </>
+  );
+}
 
-// export const getStaticPaths = async () => {
-//   const prismic = getPrismicClient({});
-//   const posts = await prismic.getByType(TODO);
+export const getStaticPaths: GetStaticPaths = async () => {
+  const prismic = getPrismicClient({});
+  const { results: posts } = await prismic.getByType('posts');
 
-//   // TODO
-// };
+  return {
+    paths: posts.map(post => post.data.uid),
+    fallback: 'blocking',
+  };
+};
 
-// export const getStaticProps = async ({params }) => {
-//   const prismic = getPrismicClient({});
-//   const response = await prismic.getByUID(TODO);
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const prismic = getPrismicClient({});
+  const response = await prismic.getByUID('posts', String(params.slug));
 
-//   // TODO
-// };
+  return {
+    props: response,
+  };
+};

@@ -1,4 +1,6 @@
 import { GetStaticProps } from 'next';
+import Head from 'next/head';
+import Link from 'next/link';
 
 import { getPrismicClient } from '../services/prismic';
 
@@ -24,13 +26,49 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-// export default function Home() {
-//   // TODO
-// }
+export default function Home({ postsPagination }: HomeProps) {
+  return (
+    <>
+      <Head>
+        <title>Home | spacetraveling.</title>
+      </Head>
 
-// export const getStaticProps = async () => {
-//   // const prismic = getPrismicClient({});
-//   // const postsResponse = await prismic.getByType(TODO);
+      <main
+        className={`${styles.contentContainer} ${commonStyles.maxWidthContainer}`}
+      >
+        <section className={styles.post}>
+          <Link href="post/1">
+            <a>Como utilizar Hooks</a>
+          </Link>
+          <p>Pensando em sincronização em vez de ciclos de vida.</p>
 
-//   // TODO
-// };
+          <nav className={styles.dateAndAuthor}>
+            <div>
+              <img src="/images/calendar.svg" alt="calendar" />
+              <time>15 Mar 2021</time>
+            </div>
+
+            <div>
+              <img src="/images/user.svg" alt="user" />
+              <span>Joseph Oliveira</span>
+            </div>
+          </nav>
+        </section>
+      </main>
+    </>
+  );
+}
+
+export const getStaticProps: GetStaticProps = async () => {
+  const prismic = getPrismicClient({});
+  const postsResponse = await prismic.getByType('posts', { pageSize: 10 });
+
+  console.log(postsResponse);
+
+  return {
+    props: {
+      postsResponse,
+    },
+    revalidate: 60 * 30,
+  };
+};

@@ -12,7 +12,7 @@ export default function Header() {
         asPath === '/' ? styles.homeHeader : ''
       }`}
     >
-      <img src="/images/Logo.svg" alt="Logo" />
+      <img src="/images/Logo.svg" alt="logo" />
     </header>
   );
 }

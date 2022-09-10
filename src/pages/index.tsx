@@ -1,14 +1,13 @@
 import Head from 'next/head';
 import Link from 'next/link';
 
-import { format } from 'date-fns';
-import ptBR from 'date-fns/locale/pt-BR';
 import { GetStaticProps } from 'next';
-import { RichText } from 'prismic-dom';
+import { useState } from 'react';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
+import formatPostsData from '../utils/formatPostsData';
 
 interface Post {
   uid?: string;
@@ -30,6 +29,20 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps) {
+  const [posts, setPosts] = useState<Post[]>(
+    formatPostsData(postsPagination.results)
+  );
+  const [nextPage, setNextPage] = useState(postsPagination.next_page);
+
+  async function handleLoadMorePosts(): Promise<void> {
+    const response = await fetch(postsPagination.next_page);
+    const postsResponse: PostPagination = await response.json();
+    const { results, next_page } = postsResponse;
+
+    setNextPage(next_page);
+    setPosts([...posts, ...formatPostsData(results)]);
+  }
+
   return (
     <>
       <Head>
@@ -39,7 +52,7 @@ export default function Home({ postsPagination }: HomeProps) {
       <main
         className={`${styles.contentContainer} ${commonStyles.maxWidthContainer}`}
       >
-        {postsPagination.results.map(post => (
+        {posts.map(post => (
           <section key={post.uid} className={styles.post}>
             <Link href={`/post/${post.uid}`}>
               <a>{post.data.title}</a>
@@ -59,6 +72,16 @@ export default function Home({ postsPagination }: HomeProps) {
             </nav>
           </section>
         ))}
+
+        {nextPage && (
+          <button
+            type="button"
+            className={styles.hasNextButton}
+            onClick={handleLoadMorePosts}
+          >
+            Carregar mais posts
+          </button>
+        )}
       </main>
     </>
   );
@@ -66,29 +89,13 @@ export default function Home({ postsPagination }: HomeProps) {
 
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient({});
-  const response = await prismic.getByType('posts', { pageSize: 10 });
-
-  const posts = response.results.map(post => ({
-    uid: post.uid,
-    first_publication_date: format(
-      new Date(post.first_publication_date),
-      'dd MMM yyyy',
-      {
-        locale: ptBR,
-      }
-    ).toString(),
-    data: {
-      title: RichText.asText(post.data.title),
-      subtitle: RichText.asText(post.data.subtitle),
-      author: RichText.asText(post.data.author),
-    },
-  }));
+  const response = await prismic.getByType('posts', { pageSize: 1 });
 
   return {
     props: {
       postsPagination: {
         next_page: response.next_page,
-        results: posts,
+        results: response.results,
       },
     },
     revalidate: 60 * 30,

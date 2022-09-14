@@ -3,3 +3,29 @@
   width: 100%;
   padding: 0 2%;
 }
+
+.dateAndAuthor {
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+
+  gap: 1.5rem;
+
+  & > div {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    img {
+      width: 20px;
+      height: 20px;
+    }
+
+    span, time {
+      color: var(--gray-300);
+      font-weight: 400;
+      font-size: 0.875rem;
+      text-transform: capitalize;
+    }
+  }
+}

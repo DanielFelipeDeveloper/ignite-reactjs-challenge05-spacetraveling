@@ -4,7 +4,7 @@
   padding: 0 2%;
 }
 
-.dateAndAuthor {
+.postInfos {
   margin-top: 1.5rem;
   display: flex;
   align-items: center;
@@ -16,15 +16,18 @@
     align-items: center;
     gap: 0.5rem;
 
-    img {
+    svg {
       width: 20px;
       height: 20px;
     }
 
-    span, time {
+    p, span, time  {
       color: var(--gray-300);
       font-weight: 400;
       font-size: 0.875rem;
+    }
+
+    span, time {
       text-transform: capitalize;
     }
   }

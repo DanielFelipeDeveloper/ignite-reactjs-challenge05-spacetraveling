@@ -59,7 +59,7 @@ export default function Home({ postsPagination }: HomeProps) {
             </Link>
             <p>{post.data.subtitle}</p>
 
-            <nav className={commonStyles.dateAndAuthor}>
+            <nav className={commonStyles.postInfos}>
               <div>
                 <img src="/images/calendar.svg" alt="calendar" />
                 <time>{post.first_publication_date}</time>

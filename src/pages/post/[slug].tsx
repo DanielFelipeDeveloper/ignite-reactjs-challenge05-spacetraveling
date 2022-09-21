@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import { GetStaticPaths, GetStaticProps } from 'next';
+import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
 import Head from 'next/head';
 import { RichText } from 'prismic-dom';
 
@@ -31,6 +32,16 @@ interface PostProps {
 }
 
 export default function Post({ post }: PostProps) {
+  const totalNumberOfWords = post.data.content.reduce((acc, content) => {
+    const textBody = RichText.asText(content.body);
+    const wordsOfBody = textBody.split(' ');
+    const wordsOfHeading = content.heading.split(' ');
+    const numberOfWords = wordsOfBody.length + wordsOfHeading.length;
+
+    return acc + numberOfWords;
+  }, 0);
+  const estimatedReadingTime = Math.ceil(totalNumberOfWords / 200);
+
   return (
     <>
       <Head>
@@ -47,15 +58,20 @@ export default function Post({ post }: PostProps) {
         <div className={styles.postHeader}>
           <h1>{post.data.title}</h1>
 
-          <nav className={commonStyles.dateAndAuthor}>
+          <nav className={commonStyles.postInfos}>
             <div>
-              <img src="/images/calendar.svg" alt="calendar" />
+              <FiCalendar />
               <time>{post.first_publication_date}</time>
             </div>
 
             <div>
-              <img src="/images/user.svg" alt="user" />
+              <FiUser />
               <span>{post.data.author}</span>
+            </div>
+
+            <div>
+              <FiClock />
+              <p>{estimatedReadingTime} min</p>
             </div>
           </nav>
         </div>

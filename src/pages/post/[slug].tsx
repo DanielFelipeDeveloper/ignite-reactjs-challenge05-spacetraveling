@@ -1,10 +1,11 @@
-import { format } from 'date-fns';
-import ptBR from 'date-fns/locale/pt-BR';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
 import Head from 'next/head';
 import { RichText } from 'prismic-dom';
 
+import { useRouter } from 'next/router';
+import { format } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
 import { getPrismicClient } from '../../services/prismic';
 
 import commonStyles from '../../styles/common.module.scss';
@@ -32,15 +33,40 @@ interface PostProps {
 }
 
 export default function Post({ post }: PostProps) {
-  const totalNumberOfWords = post.data.content.reduce((acc, content) => {
-    const textBody = RichText.asText(content.body);
-    const wordsOfBody = textBody.split(' ');
-    const wordsOfHeading = content.heading.split(' ');
-    const numberOfWords = wordsOfBody.length + wordsOfHeading.length;
+  const router = useRouter();
+  if (!post) return null;
 
-    return acc + numberOfWords;
+  if (router.isFallback) {
+    return (
+      <p
+        style={{
+          position: 'absolute',
+          top: '50%',
+          bottom: '50%',
+          left: '50%',
+          right: '50%',
+        }}
+      >
+        Carregando...
+      </p>
+    );
+  }
+
+  const totalWords = post.data.content.reduce((total, contentItem) => {
+    const headingTime = contentItem.heading.split(/\s+/).length;
+    const wordsTime = RichText.asText(contentItem.body).split(/\s+/).length;
+
+    return total + headingTime + wordsTime;
   }, 0);
-  const estimatedReadingTime = Math.ceil(totalNumberOfWords / 200);
+  const estimatedReadingTime = Math.ceil(totalWords / 200);
+
+  const formattedDate = format(
+    new Date(post.first_publication_date),
+    'dd MMM yyyy',
+    {
+      locale: ptBR,
+    }
+  );
 
   return (
     <>
@@ -61,7 +87,7 @@ export default function Post({ post }: PostProps) {
           <nav className={commonStyles.postInfos}>
             <div>
               <FiCalendar />
-              <time>{post.first_publication_date}</time>
+              <time>{formattedDate}</time>
             </div>
 
             <div>
@@ -104,34 +130,15 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params;
 
   const prismic = getPrismicClient({});
   const response = await prismic.getByUID('posts', String(slug));
 
-  const post = {
-    first_publication_date: format(
-      new Date(response.first_publication_date),
-      'dd MMM yyyy',
-      {
-        locale: ptBR,
-      }
-    ),
-    data: {
-      ...response.data,
-      title: RichText.asText(response.data.title),
-      author: RichText.asText(response.data.author),
-      content: response.data.content.map(content => ({
-        heading: RichText.asText(content.heading),
-        body: [...content.body],
-      })),
-    },
-  };
-
   return {
     props: {
-      post,
+      post: response,
     },
   };
 };

@@ -1,18 +1,15 @@
-import { useRouter } from 'next/router';
-
+import Link from 'next/link';
 import styles from './header.module.scss';
 import commonStyles from '../../styles/common.module.scss';
 
 export default function Header() {
-  const { asPath } = useRouter();
-
   return (
     <header
-      className={`${styles.headerContainer} ${commonStyles.maxWidthContainer} ${
-        asPath === '/' ? styles.homeHeader : ''
-      }`}
+      className={`${styles.headerContainer} ${commonStyles.maxWidthContainer}`}
     >
-      <img src="/images/Logo.svg" alt="logo" />
+      <Link href="/">
+        <img src="/images/Logo.svg" alt="logo" />
+      </Link>
     </header>
   );
 }

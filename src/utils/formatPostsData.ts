@@ -1,6 +1,5 @@
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
-import { RichText } from 'prismic-dom';
 
 interface Post {
   uid?: string;
@@ -14,7 +13,7 @@ interface Post {
 
 export default function formatPostsData(posts: Post[]): Post[] {
   return posts.map(post => ({
-    uid: post.uid,
+    ...post,
     first_publication_date: format(
       new Date(post.first_publication_date),
       'dd MMM yyyy',
@@ -22,10 +21,5 @@ export default function formatPostsData(posts: Post[]): Post[] {
         locale: ptBR,
       }
     ),
-    data: {
-      title: RichText.asText(post.data.title),
-      subtitle: RichText.asText(post.data.subtitle),
-      author: RichText.asText(post.data.author),
-    },
   }));
 }

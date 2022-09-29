@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 import { GetStaticProps } from 'next';
 import { useState } from 'react';
+import { FiCalendar, FiUser } from 'react-icons/fi';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
@@ -61,12 +62,12 @@ export default function Home({ postsPagination }: HomeProps) {
 
             <nav className={commonStyles.postInfos}>
               <div>
-                <img src="/images/calendar.svg" alt="calendar" />
+                <FiCalendar />
                 <time>{post.first_publication_date}</time>
               </div>
 
               <div>
-                <img src="/images/user.svg" alt="user" />
+                <FiUser />
                 <span>{post.data.author}</span>
               </div>
             </nav>
